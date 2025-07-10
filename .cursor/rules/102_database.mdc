@@ -1,0 +1,45 @@
+---
+description: Database schema and Drizzle ORM patterns for SpaGuessr
+globs: lib/db/**/*.ts, drizzle/**/*
+---
+
+# Database Implementation Rules
+
+## Stack Requirements
+- PostgreSQL database (required)
+- Drizzle ORM for schema and queries
+- Connection pooling for production
+- Environment variables for configuration
+
+## Schema Patterns
+```typescript
+// lib/db/schema.ts
+export const spasTable = pgTable('spas', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: text('name').notNull(),
+  prefecture: text('prefecture').notNull(),
+  lat: doublePrecision('lat').notNull(),
+  lng: doublePrecision('lng').notNull(),
+  images: text('images').array(),
+  createdAt: timestamp('created_at').defaultNow()
+});
+```
+
+## Core Tables
+- `spas` - Hot spring data with coordinates
+- `game_sessions` - Individual game instances  
+- `guesses` - User guess submissions
+- `weekly_rankings` - Leaderboard data
+- `saved_spas` - User favorites
+
+## Query Patterns
+- Use transactions for multi-table operations
+- Implement proper error handling
+- Use prepared statements for performance
+- Validate input data before database operations
+
+## Migration Strategy
+- Use Drizzle migrations for schema changes
+- Version control all migration files
+- Test migrations in development first
+ 

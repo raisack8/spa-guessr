@@ -35,7 +35,7 @@
 ### 1. リポジトリのクローン
 ```bash
 git clone <repository-url>
-cd spaguessr
+cd spa-guessr
 ```
 
 ### 2. 環境変数の設定
@@ -179,9 +179,10 @@ npm run test:e2e:ui
 - **アバター**: ポイントでカスタマイズ
 - **アフィリエイト**: 楽天トラベル連携
 
-## 📖 詳細仕様
+## 📖 詳細ドキュメント
 
-詳細な仕様書は [SPEC.md](./SPEC.md) を参照してください。
+- **機能仕様**: [SPEC.md](./SPEC.md) - 何を作るか
+- **技術仕様**: [TECH_SPEC.md](./TECH_SPEC.md) - どう作るか
 
 ## 🚀 デプロイ
 
@@ -194,7 +195,7 @@ Vercelに自動デプロイ設定済み。`main`ブランチにpushすると自�
 3. **Phase 3**: UX向上・収益化
 4. **Phase 4**: 高度な機能
 
-各フェーズの詳細は [SPEC.md](./SPEC.md) を参照してください。
+各フェーズの詳細は [TECH_SPEC.md](./TECH_SPEC.md) を参照してください。
 
 ## 📝 License
 

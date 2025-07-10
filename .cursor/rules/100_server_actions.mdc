@@ -1,0 +1,44 @@
+---
+description: Next.js Server Actions implementation patterns and correct usage
+globs: lib/actions/**/*.ts, app/**/*.tsx, app/**/*.ts
+---
+
+# Server Actions Implementation Rules
+
+## Core Principles
+- Server Actions only for: 1) Initial data fetch, 2) Form submissions
+- NO onClick/onChange direct calls
+- Use `'use server'` directive at function top
+- All backend functionality through Server Actions (no API Routes)
+
+## Usage Patterns
+
+### 1. Initial Data Fetch (Server Components)
+```typescript
+// app/page.tsx
+export default async function GamePage() {
+  const gameData = await getGameDataAction();
+  return <GameBoard data={gameData} />;
+}
+```
+
+### 2. Form Actions
+```typescript
+// app/game/page.tsx  
+<form action={submitGuessAction}>
+  <input type="hidden" name="gameId" value={gameId} />
+  <button type="submit">Submit Guess</button>
+</form>
+```
+
+## Integration Patterns
+- `useActionState` for form state management
+- `useOptimistic` for optimistic updates
+- `revalidatePath()` for cache invalidation
+- Zustand stores consume Server Action results (no direct calls)
+
+## File Structure
+- `lib/actions/game.ts` - Game-related actions
+- `lib/actions/user.ts` - User-related actions  
+- `lib/actions/rankings.ts` - Ranking actions
+ 

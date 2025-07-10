@@ -1,0 +1,42 @@
+---
+description: Mapbox GL JS implementation guidelines for SpaGuessr game
+globs: components/**/Map*.tsx, lib/mapbox/**/*.ts, app/**/map/**/*
+---
+
+# Mapbox GL JS Implementation Rules
+
+## Required Setup
+- Use Mapbox GL JS (required - no alternatives)
+- Environment variable: `NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN`
+- Import: `import mapboxgl from 'mapbox-gl'`
+- Japan-focused bounds and styling
+
+## Map Configuration
+```typescript
+const map = new mapboxgl.Map({
+  container: mapContainer.current,
+  style: 'mapbox://styles/mapbox/satellite-v9',
+  center: [138.252924, 36.204824], // Japan center
+  zoom: 5,
+  maxBounds: [[129.0, 31.0], [146.0, 46.0]] // Japan bounds
+});
+```
+
+## Pin Implementation
+- Blue pins for user guesses (draggable)
+- Red pins for correct answers (fixed)
+- Distance lines using GeoJSON LineString
+- Auto-zoom to fit both points
+
+## Map Controls
+- Zoom controls (required)
+- Compass overlay
+- Satellite/street map toggle
+- Reset functionality
+
+## File Structure  
+- `components/Map/MapboxMap.tsx` - Main map component
+- `components/Map/MapControls.tsx` - Zoom/reset controls
+- `components/Map/CompassOverlay.tsx` - Direction display
+- `lib/mapbox/utils.ts` - Distance calculations
+ 

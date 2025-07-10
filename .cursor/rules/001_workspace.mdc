@@ -1,0 +1,37 @@
+---
+description: SpaGuessr game project workspace definition and core constraints
+globs: /**/*
+---
+
+# SpaGuessr Project Workspace
+
+## Core Project Definition
+- **Purpose**: Hot spring guessing game (GeoGuessr-style) for Japan
+- **Architecture**: Next.js 14 App Router + Server Actions only (no API Routes)
+- **Maps**: Mapbox GL JS (required)
+- **Database**: PostgreSQL with Drizzle ORM
+- **State**: Zustand + Server Actions integration
+
+## Key Directories
+- `app/`: Next.js App Router pages and layouts
+- `lib/actions/`: Server Actions (game, user, rankings)
+- `lib/db/`: Database schema and connection
+- `components/`: React components (server/client)
+- `public/`: Static assets (images, icons)
+
+## Primary Constraints
+- Server Actions for ALL backend functionality
+- No traditional API Routes
+- Mapbox GL JS for map functionality
+- Japanese hot spring theme and data
+- Form-based interactions with useActionState
+
+## Core Technologies
+- Next.js 14 App Router
+- TypeScript (strict mode)
+- Tailwind CSS + shadcn/ui
+- Server Actions (no API Routes)
+- Drizzle ORM + PostgreSQL
+- Mapbox GL JS
+- Zustand for client state
+ 
