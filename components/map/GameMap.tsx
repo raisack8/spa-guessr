@@ -87,12 +87,27 @@ export function GameMap({
   }, [isMapLoaded])
 
   useEffect(() => {
+    console.log('GameMap useEffect triggered - checking conditions...');
+    console.log('mapboxgl.accessToken:', mapboxgl.accessToken ? 'SET' : 'NOT SET');
+    console.log('mapContainerRef.current:', !!mapContainerRef.current);
+    console.log('mapRef.current:', !!mapRef.current);
+    
     if (!mapboxgl.accessToken) {
       mapboxgl.accessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || ''
+      console.log('Set Mapbox access token');
     }
 
-    if (!mapContainerRef.current || mapRef.current) return
+    if (!mapContainerRef.current || mapRef.current) {
+      console.log('Skipping map initialization - container missing or map already exists');
+      return
+    }
 
+    // Prevent duplicate initialization by immediately setting mapRef
+    const tempRef = {}
+    mapRef.current = tempRef as any
+
+    console.log('Creating new Mapbox map...');
+    
     // Initialize map with simple, working configuration
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
@@ -104,6 +119,8 @@ export function GameMap({
       attributionControl: false
     })
 
+    console.log('Map created, setting bounds...');
+
     // Set Japan bounds
     map.setMaxBounds([
       [129.0, 31.0], // Southwest coordinates
@@ -112,9 +129,16 @@ export function GameMap({
 
     // Simple click handler for placing guess
     map.on('click', (e) => {
-      if (hasSubmittedGuess || showResult) return
+      if (hasSubmittedGuess || showResult) {
+        console.log('Click ignored - game state:', { hasSubmittedGuess, showResult });
+        return
+      }
 
       const { lng, lat } = e.lngLat
+      console.log('Map clicked - Raw event:', e);
+      console.log('Map clicked - LngLat object:', e.lngLat);
+      console.log('Map clicked - Extracted coordinates:', { lat, lng });
+      console.log('Map clicked - User guess coordinates:', { lat, lng });
 
       // Remove existing user marker
       if (userMarkerRef.current) {
@@ -133,6 +157,7 @@ export function GameMap({
 
       // Update game state
       const guess = { lat, lng }
+      console.log('Setting guess in store:', guess);
       setGuess({
         ...guess,
         timestamp: new Date()
@@ -148,6 +173,7 @@ export function GameMap({
     }
 
     map.on('load', () => {
+      console.log('Map loaded successfully');
       setIsMapLoaded(true)
       setMapReady(true)
 
@@ -181,14 +207,38 @@ export function GameMap({
       })
     })
 
+    // Set the actual map reference after successful creation
     mapRef.current = map
 
     return () => {
-      map.remove()
+      console.log('Cleaning up map...');
+      if (map) {
+        map.remove()
+      }
       mapRef.current = null
       setMapReady(false)
     }
-  }, [miniMap])
+  }, []) // Empty dependency array - map should be created only once
+
+  // Handle miniMap changes without recreating the map
+  useEffect(() => {
+    if (!mapRef.current || !isMapLoaded) return
+    
+    const map = mapRef.current
+    
+    // Update zoom based on miniMap setting
+    const currentZoom = map.getZoom()
+    const targetZoom = miniMap ? 5 : 6
+    
+    if (Math.abs(currentZoom - targetZoom) > 0.5) {
+      map.setZoom(targetZoom)
+    }
+    
+    // Update max zoom
+    map.setMaxZoom(miniMap ? 15 : 18)
+    
+    console.log('Updated map settings for miniMap:', miniMap);
+  }, [miniMap, isMapLoaded])
 
   // Clear previous round results when starting a new round
   useEffect(() => {

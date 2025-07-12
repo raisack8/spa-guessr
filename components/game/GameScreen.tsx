@@ -56,7 +56,7 @@ export default function GameScreen() {
   // Initialize game when component mounts
   useEffect(() => {
     initializeGame()
-  }, [])
+  }, []) // 空の依存配列でマウント時のみ実行
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -208,6 +208,13 @@ export default function GameScreen() {
     try {
       setLoading(true)
       
+      // Clear any previous game state
+      reset()
+      clearResult()
+      clearGuess()
+      
+      console.log('Initializing new game...');
+      
       // Create guest user if needed
       let currentUserId = userId
       if (!currentUserId) {
@@ -215,8 +222,12 @@ export default function GameScreen() {
         setUserId(currentUserId)
       }
 
+      console.log('Starting game session for user:', currentUserId);
+
       // Start new game session
       const gameResult = await startGameSession(currentUserId || undefined)
+      console.log('Game session result:', gameResult);
+      
       if (gameResult.success && gameResult.data) {
         // Create rounds array with the correct length
         const rounds = Array.from({ length: gameResult.data.totalRounds }, (_, index) => ({
@@ -224,21 +235,26 @@ export default function GameScreen() {
           imageId: 0, // Will be populated when the round is played
         }))
 
-        setSession({
+        const newSession = {
           sessionId: gameResult.data.sessionId,
           rounds: rounds,
           currentRound: gameResult.data.currentRound,
           totalScore: 0,
-          status: 'playing',
+          status: 'playing' as const,
           startedAt: new Date()
-        })
+        }
         
+        console.log('Setting new session:', newSession);
+        setSession(newSession)
+        
+        console.log('Setting current image:', gameResult.data.currentImage);
         setCurrentImage(gameResult.data.currentImage)
         startRound()
       } else {
         setError(gameResult.error || 'Failed to start game')
       }
     } catch (err) {
+      console.error('Error in initializeGame:', err);
       setError('Failed to initialize game')
     } finally {
       setLoading(false)
@@ -248,16 +264,27 @@ export default function GameScreen() {
   const handleGuessSubmit = async () => {
     if (!currentGuess || !session || isSubmitting || isTimeUp) return
 
+    console.log('handleGuessSubmit called with:', { 
+      currentGuess, 
+      sessionId: session.sessionId,
+      isSubmitting,
+      isTimeUp 
+    });
+
     try {
       setIsSubmitting(true)
       
       // Stop the timer when user submits manually
       setIsTimerActive(false)
       
+      console.log('Calling submitGuess with coordinates:', { lat: currentGuess.lat, lng: currentGuess.lng });
+      
       const result = await submitGuess(
         session.sessionId,
         { lat: currentGuess.lat, lng: currentGuess.lng }
       )
+
+      console.log('submitGuess result:', result);
 
       if (result.success && result.data) {
         setResult(result.data)
@@ -273,6 +300,7 @@ export default function GameScreen() {
         setError(result.error || 'Failed to submit guess')
       }
     } catch (err) {
+      console.error('Error in handleGuessSubmit:', err);
       setError('Failed to submit guess')
     } finally {
       setIsSubmitting(false)
@@ -813,7 +841,7 @@ export default function GameScreen() {
                   <>
                     <div className="text-gray-600 mb-1">あなたの推測は正しい場所から</div>
                     <div className="text-2xl font-bold text-red-600">
-                      {(lastResult.distance / 1000).toFixed(1)}km
+                      {lastResult.distance.toFixed(1)}km
                     </div>
                     <div className="text-gray-600">でした。</div>
                   </>

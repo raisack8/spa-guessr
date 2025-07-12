@@ -140,6 +140,8 @@ export async function getGameSession(sessionId: string) {
 
 // Haversine距離計算関数
 function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  console.log('Distance calculation inputs:', { lat1, lng1, lat2, lng2 });
+  
   const R = 6371 // 地球の半径 (km)
   const dLat = (lat2 - lat1) * Math.PI / 180
   const dLng = (lng2 - lng1) * Math.PI / 180
@@ -148,7 +150,10 @@ function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
     Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
     Math.sin(dLng/2) * Math.sin(dLng/2)
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
-  return R * c
+  const distance = R * c
+  
+  console.log('Calculated distance:', distance, 'km');
+  return distance
 }
 
 // スコア計算関数（GeoGuessr風）
@@ -169,6 +174,10 @@ export async function submitGuess(
   timeSpent?: number
 ) {
   try {
+    console.log('=== submitGuess called ===');
+    console.log('Session ID:', sessionId);
+    console.log('Guess coordinates:', guess);
+    
     const session = mockSessions.get(sessionId)
     if (!session) {
       throw new Error('Game session not found')
@@ -176,6 +185,10 @@ export async function submitGuess(
 
     const currentRound = session.currentRound
     const rounds = session.rounds
+    
+    console.log('Current round:', currentRound);
+    console.log('Total rounds:', rounds.length);
+    console.log('Session rounds:', rounds);
 
     if (currentRound >= rounds.length) {
       return {
@@ -186,19 +199,30 @@ export async function submitGuess(
 
     // 正解の温泉情報を取得
     const currentRoundData = rounds[currentRound]
+    console.log('Current round data:', currentRoundData);
+    
     const correctSpa = sampleSpas.find(s => s.id === currentRoundData.spaId)
 
     if (!correctSpa) {
       throw new Error('Spa not found')
     }
 
+    console.log('Correct spa found:', correctSpa.name);
+    
     const distance = calculateDistance(
       guess.lat,
       guess.lng,
       parseFloat(correctSpa.latitude),
       parseFloat(correctSpa.longitude)
     )
+    
+    console.log('Guess coordinates:', { lat: guess.lat, lng: guess.lng });
+    console.log('Correct spa coordinates (string):', { lat: correctSpa.latitude, lng: correctSpa.longitude });
+    console.log('Correct spa coordinates (parsed):', { lat: parseFloat(correctSpa.latitude), lng: parseFloat(correctSpa.longitude) });
+    console.log('Final calculated distance:', distance, 'km');
     const score = calculateScore(distance)
+    
+    console.log('Calculated score:', score);
 
     // ラウンドデータを更新
     const updatedRounds = [...rounds]
@@ -224,6 +248,8 @@ export async function submitGuess(
 
     // セッションを更新
     mockSessions.set(sessionId, updatedSession)
+    
+    console.log('Updated session:', updatedSession);
 
     return {
       success: true,

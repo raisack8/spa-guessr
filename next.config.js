@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: false, // Temporarily disable to fix duplicate initialization
   experimental: {
     serverActions: {
       allowedOrigins: ['localhost:3000']
